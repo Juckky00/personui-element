@@ -1,0 +1,125 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../paper-input/paper-input.html">
+<link rel="import" href="../paper-item/paper-item.html">
+
+
+<link rel="import" href="../paper-button/paper-button.html">
+<link rel="import" href="../paper-radio-group/paper-radio-group.html">
+<link rel="import" href="../iron-ajax/iron-ajax.html">
+
+
+
+
+
+
+
+
+
+<dom-module id="personui-element">
+    <style>
+        .container {
+            @apply(--layout-fullbleed-vertical);
+            font-family: 'Roboto Regular', sans-serif;
+            height: 100%;
+            width: 100%;
+            background-color: white;
+        }
+
+        paper-checkbox {
+            display: block;
+            margin-bottom: 40px;
+        }
+
+        paper-button.blue {
+        }
+
+            paper-button.blue:hover {
+                background: var(--paper-light-blue-50);
+            }
+    </style>
+ <template>
+  
+<!-- uiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiui -->
+    <div class="container" style="float: left;">
+             <paper-input id="Searchip"  label="Search" ></paper-input>
+                <paper-radio-group id="rdg" selected="CID">
+                    <paper-radio-button name="CID">เลขประจำตัวประชาชน</paper-radio-button>
+                    <paper-radio-button name="FirstName">ชื่อ</paper-radio-button>
+                    <paper-radio-button name="LastName">นามสกุล</paper-radio-button>
+                    <paper-radio-button name="FLName">ชื่อ-นามสกุล</paper-radio-button>
+                </paper-radio-group>
+             <paper-button tabindex="0" class="blue"  on-click="searchClick" limit="10" raised>ค้นหา</paper-button>
+
+             <br>
+
+        
+              <div layout horizontal center>
+                    <paper-button tabindex="0" class="blue" on-click="previousClick" raised>previous
+                    </paper-button>
+                    <paper-button tabindex="0" class="blue" on-click="nextClick" raised>next
+                    </paper-button>
+              </div>
+
+    </div>
+     
+
+
+ </template>
+</dom-module>
+
+
+<script>
+    Polymer({
+        is: 'personui-element',
+
+        properties: {
+            result: {
+                type: Object,
+                //observer: '_queryValueChanged'
+            }, countP: {
+                type: String,
+
+            }
+        },
+
+        searchClick: function (e) {
+
+    
+            
+            this.$.getdata.textsearch = this.$.Searchip.value;
+            this.$.getdata.typesearch = this.$.rdg.selected;
+            //this.$.getdata.limit = '10';
+            this.$.getdata.page_index=1;
+            this.$.getdata.query_text.skip=0;
+            
+            this.$.getdata._queryValueChanged();
+
+
+        }, _receivedata: function (e) {
+            //รับข้มมูลมาเป็น Object มี 
+            // CID คือ e.detail[index].CID
+            // คำนำหน้า คือ e.detail[index].Title
+            // ชื่อ คือ e.detail[index].FirstName
+            // นามสกุล คือ e.detail[index].LastName
+            // จำนวนที่ Search เจอทั้งหมดจาก text input ที่เราใส่ไป คือ e.detail.CountP
+
+            //console.log(e.detail);
+            //this.countP = e.detail.CountP;
+            //console.log(e.detail[1].FirstName);
+            this.fire('datafromui',e.detail);
+            //console.log(this.countP);
+
+        },
+        previousClick: function () {
+
+                this.$.getdata.previousClick();
+
+        },
+        nextClick: function () {
+
+            this.$.getdata.nextClick();
+
+        }
+
+    });
+</script>

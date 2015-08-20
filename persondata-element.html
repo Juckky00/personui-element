@@ -1,0 +1,254 @@
+<link rel="import" href="../polymer/polymer.html">
+
+<link rel="import" href="../iron-ajax/iron-ajax.html">
+
+<dom-module id="persondata-element">
+
+  <style>
+      :host {
+          display: block;
+          box-sizing: border-box;
+      }
+
+      .author img {
+          float: left;
+          margin-right: 5px;
+          max-height: 100px;
+          max-width: 100px;
+      }
+  </style>
+
+  <template url="{{url}}" textfilter={{textfilter}} type={{type}} >
+
+      
+  <iron-ajax id="people_count"
+    
+    last-response="{{count}}"
+    handleAs="json"
+    on-response="_doqryperson">
+  </iron-ajax>
+
+  <iron-ajax id="ajax"
+ 
+    last-response="{{people}}"
+    handleAs="json"
+    on-response="firedata">
+  </iron-ajax>
+     
+          <iron-ajax id="worker" 
+        handle-as="json"
+     
+        url="{{url}}"
+        on-response="_handleRequest">
+    </iron-ajax>
+      
+    <iron-ajax method="DELETE" id="delete" 
+          handle-as="json"
+          on-response="_successdelete">
+    </iron-ajax>
+      
+      
+      
+    <iron-ajax method="POST" id="insertplz" 
+          handle-as="json"
+          content-type="application/json" 
+          on-response="_successinsert">
+    </iron-ajax>
+        
+    <iron-ajax method="PUT" id="updateplz" 
+          handle-as="json"
+          content-type="application/json" 
+          on-response="_successupdate">
+    </iron-ajax>
+ <div id="result" value="{{count.count}}">&nbsp;&nbsp;Found 
+                <span>{{count.count}}</span> documents</div>
+  </template>
+
+</dom-module>
+
+<script>
+
+    Polymer({
+
+        is: 'persondata-element',
+        page_index: 1,
+        query_text: {
+            limit: 10,
+            skip: 0,
+            fields: ['CID', 'Title', 'FirstName', 'LastName', 'id'],
+            where: {}
+        },
+
+        properties: {
+            url: {
+                type: String
+            }, textsearch: {
+                type: String,
+                //observer: '_queryValueChanged'
+            }, typesearch: {
+                type: String,
+                //observer: '_queryValueChanged'
+            }, limit: {
+                type: String,
+                //observer: '_queryValueChanged'
+            }, skip: {
+                type: String,
+               // observer: '_queryValueChanged'
+            },
+            action: {
+                type: Object,
+                observer: "_actionChanged"
+            }
+        },
+        ready: function () {
+			//console.log('เหรี้ย')
+			//console.log(this.url)
+			//console.log(this.textsearch)
+			//console.log(this.typesearch)
+			//this._queryValueChanged()
+        },
+        _handleRequest: function () {
+
+            console.log(this.$.worker.lastResponse)
+
+            this.fire('my', this.$.worker.lastResponse)
+        },
+        _queryValueChanged: function () {
+     
+			//console.log(this.url)
+			//console.log(this.query_text)
+            //
+			//console.log(this.limit)
+            
+            
+            this.query_text.limit=this.limit;
+
+            
+            
+            
+            
+            if (this.typesearch == 'CID') {
+                
+
+                    this.query_text.where = {"CID": { "like": this.textsearch }};
+                    this.$.people_count.url = this.url+"/count?where=" +
+                    JSON.stringify(this.query_text.where);
+                    this.$.people_count.generateRequest();
+
+			     //console.log( this.$.people_count.url)
+
+            }
+            else if (this.typesearch == 'FirstName') {
+          
+
+                this.query_text.where = {"FirstName": { "like": this.textsearch }};
+                this.$.people_count.url = this.url+"/count?where=" +
+                JSON.stringify(this.query_text.where);
+                this.$.people_count.generateRequest();
+            }
+            else if (this.typesearch == 'LastName') {
+
+                this.query_text.where = {"LastName": { "like": this.textsearch }};
+                this.$.people_count.url = this.url+"/count?where=" +
+                JSON.stringify(this.query_text.where);
+                this.$.people_count.generateRequest();
+            }
+            else if (this.typesearch == 'FLName') {
+
+                var str = this.textsearch;
+                var res = str.split(" ");
+
+                if (res.length < 3) {
+
+                    if (res[0] == '' && res[1] == undefined) {
+                        alert("กรุณากรอกชื่อหรือนามสกุลที่ต้องการค้นหา");
+
+                    }
+                    else if (res[0] != '' && res[1] == undefined) {
+
+                     
+                        this.query_text.where = {"FirstName": { "like": res[0] }, "LastName": { "like": res[0] }};
+
+                    }
+                    else if (res[0] != '' && res[1] != '') {
+
+                        this.query_text.where = {"FirstName": { "like": res[0] }, "LastName": { "like": res[1] }};
+                    
+                    }
+                    else if (res[0] == '' && res[1] != '') {
+
+                        this.query_text.where = {"FirstName": { "like": res[1] }, "LastName": { "like": res[1] }};
+            
+                    }
+                }
+
+                this.$.people_count.url = this.url+"/count?where=" +
+                JSON.stringify(this.query_text.where);
+                this.$.people_count.generateRequest();
+            }
+
+        },
+        queryPerson: function () {
+            if (this.typesearch == 'CID') {
+                this.$.ajax.url = this.url+"?filter=" + JSON.stringify(this.query_text);
+            }
+            else if (this.typesearch == 'FirstName') {
+                this.$.ajax.url = this.url+"?filter=" + JSON.stringify(this.query_text);
+            }
+            else if (this.typesearch == 'LastName') {
+                this.$.ajax.url = this.url+"?filter=" + JSON.stringify(this.query_text);
+            }
+            else if (this.typesearch == 'FLName') {
+                this.$.ajax.url = this.url+"?filter=" + JSON.stringify(this.query_text);
+            }
+
+
+            this.$.ajax.generateRequest();
+        },
+        _actionChanged: function () {
+            if (this.action.operation == 'delete') {
+                this.action.target
+            }
+        },
+        _doqryperson: function () {
+			
+              
+              this.queryPerson();
+
+                //console.log(this.$.people_count.lastResponse)
+
+        },
+        firedata: function () {
+            
+            this.result = this.$.ajax.lastResponse;
+            this.result["CountP"]=this.$.people_count.lastResponse.count;
+            
+            //console.log(this.result)
+            
+
+            this.fire('datafromquery',   this.result);
+		
+        },
+        previousClick: function () {
+            
+                if (this.page_index > 1) {
+                    this.query_text.skip -= 10;;
+                    this.page_index--;
+                    this.queryPerson();
+                }
+           
+        },
+        nextClick: function () {
+            
+                
+                if (this.$.result.value - 10 > this.query_text.skip) {
+                    // do query next
+                    this.query_text.skip += 10;
+                    this.page_index++;
+                    this.queryPerson();
+                }
+
+        }
+    });
+
+</script>

@@ -1,6 +1,6 @@
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../paper-input/paper-input.html">
-<link rel="import" href="../paper-item/paper-item.html">
+
 
 
 <link rel="import" href="../paper-button/paper-button.html">
@@ -10,7 +10,7 @@
 
 
 
-
+<link rel="import" href="./persondata-element.html">
 
 
 
@@ -61,9 +61,24 @@
               </div>
 
     </div>
+
+<!-- uiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiui -->   
      
-
-
+            <!--
+			url ตามตารางที่ต้องการ
+			textfilter ค่าที่ต้องการค้นหา
+			type ประเภทที่ต้องการค้นหา เช่น 
+			ชื่อ  ="FirstName"
+			นามสกุล ="LastName"
+			ชื่อ-นามสกุล ="FLName"
+			รหัสประจำตัวประชาชน="CID"
+			
+			-->
+<!-- queryqueryqueryqueryqueryqueryqueryqueryqueryqueryqueryqueryqueryqueryqueryqueryqueryqueryqueryqueryqueryqueryqueryqueryqueryqueryqueryquery -->   
+        <persondata-element id = "getdata" url="http://localhost:3000/api/People" textsearch="" limit="10"
+                            typesearch="" on-datafromquery="_receivedata">       
+        </persondata-element>
+<!-- queryqueryqueryqueryqueryqueryqueryqueryqueryqueryqueryqueryqueryqueryqueryqueryqueryqueryqueryqueryqueryqueryqueryqueryqueryqueryqueryquery --> 
  </template>
 </dom-module>
 
@@ -71,20 +86,16 @@
 <script>
     Polymer({
         is: 'personui-element',
-
         properties: {
             result: {
                 type: Object,
                 //observer: '_queryValueChanged'
-            }, countP: {
-                type: String,
-
             }
         },
 
         searchClick: function (e) {
 
-    
+            console.clear();
             
             this.$.getdata.textsearch = this.$.Searchip.value;
             this.$.getdata.typesearch = this.$.rdg.selected;

@@ -1,0 +1,49 @@
+<link rel="import" href="../polymer/polymer.html">
+
+<link rel="import" href="../iron-ajax/iron-ajax.html">
+<link rel="import" href="persondata-element.html">
+<link rel="import" href="personui-element.html">
+<dom-module id="test-call">
+
+  <style>
+
+  </style>
+
+  <template>
+
+    
+      <personui-element   result="{{result}}"  on-datafromui='_receivedata'></personui-element>
+      
+      <!--<personui-element on-cc="clickja" result="{{result}}"></personui-element> -->
+      
+      
+
+  </template>
+
+</dom-module>
+
+<script>
+
+    Polymer({
+
+        is: 'test-call',
+        page_index: 1,
+       
+        properties: {
+            result: {
+                type: Object,
+           
+            }
+        },
+
+        _receivedata: function (e) {
+            
+                console.log(e.detail);
+            
+          
+       
+		
+        }
+    });
+
+</script>

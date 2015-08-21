@@ -161,30 +161,43 @@
                 if (res.length < 3) {
 
                     if (res[0] == '' && res[1] == undefined) {
-                        alert("กรุณากรอกชื่อหรือนามสกุลที่ต้องการค้นหา");
+                        console.log(this.query_text);
+                       // alert("กรุณากรอกชื่อหรือนามสกุลที่ต้องการค้นหา");
+             
+                        this.query_text.where = {"FirstName": { "like": res[0] }, "LastName": { "like": res[0] }};
+                        this.$.people_count.url = this.url+"/count?where=" +
+                        JSON.stringify(this.query_text.where);
+                        this.$.people_count.generateRequest();
 
                     }
                     else if (res[0] != '' && res[1] == undefined) {
-
+                        console.log(this.query_text);
                      
-                        this.query_text.where = {"FirstName": { "like": res[0] }, "LastName": { "like": res[0] }};
+                        this.query_text.where = {"or":[{"FirstName": { "like": res[0] }}, {"LastName": { "like": res[0] }}]};
+                        this.$.people_count.url = this.url+"/count?where=" +
+                        JSON.stringify(this.query_text.where);
+                        this.$.people_count.generateRequest();
 
                     }
                     else if (res[0] != '' && res[1] != '') {
 
                         this.query_text.where = {"FirstName": { "like": res[0] }, "LastName": { "like": res[1] }};
+                        this.$.people_count.url = this.url+"/count?where=" +
+                        JSON.stringify(this.query_text.where);
+                        this.$.people_count.generateRequest();
                     
                     }
                     else if (res[0] == '' && res[1] != '') {
 
-                        this.query_text.where = {"FirstName": { "like": res[1] }, "LastName": { "like": res[1] }};
-            
+                        this.query_text.where = {"or":[{"FirstName": { "like": res[1] }}, {"LastName": { "like": res[1] }}]};
+                        this.$.people_count.url = this.url+"/count?where=" +
+                        JSON.stringify(this.query_text.where);
+                        this.$.people_count.generateRequest();
+
                     }
                 }
 
-                this.$.people_count.url = this.url+"/count?where=" +
-                JSON.stringify(this.query_text.where);
-                this.$.people_count.generateRequest();
+                
             }
 
         },

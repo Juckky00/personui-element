@@ -4,9 +4,10 @@
 
 
 <link rel="import" href="../paper-button/paper-button.html">
+
 <link rel="import" href="../paper-radio-group/paper-radio-group.html">
 <link rel="import" href="../iron-ajax/iron-ajax.html">
-
+<link rel="import" href="../iron-flex-layout/iron-flex-layout.html">
 
 
 
@@ -35,30 +36,46 @@
 
             paper-button.blue:hover {
                 background: var(--paper-light-blue-50);
-            }
+        }
+        div.divtest1
+        {
+          @apply(--layout-horizontal);
+          @apply(--layout-justified);
+        }
+
+        
     </style>
  <template>
   
 <!-- uiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiui -->
     <div class="container" style="float: left;">
-             <paper-input id="Searchip"  label="Search" ></paper-input>
-                <paper-radio-group id="rdg" selected="CID">
+             <paper-input id="Searchip"  label="Search" value="{{textchange::input}}" ></paper-input>
+        
+                <paper-radio-group id="rdg" selected="CID" on-change="radiosearch">
                     <paper-radio-button name="CID">เลขประจำตัวประชาชน</paper-radio-button>
                     <paper-radio-button name="FirstName">ชื่อ</paper-radio-button>
                     <paper-radio-button name="LastName">นามสกุล</paper-radio-button>
                     <paper-radio-button name="FLName">ชื่อ-นามสกุล</paper-radio-button>
                 </paper-radio-group>
-             <paper-button tabindex="0" class="blue"  on-click="searchClick" limit="10" raised>ค้นหา</paper-button>
+            <!-- <paper-button tabindex="0" class="blue"  on-click="searchClick" limit="10" raised>ค้นหา</paper-button> -->
 
              <br>
 
         
-              <div layout horizontal center>
-                    <paper-button tabindex="0" class="blue" on-click="previousClick" raised>previous
-                    </paper-button>
-                    <paper-button tabindex="0" class="blue" on-click="nextClick" raised>next
-                    </paper-button>
+              <div class="divtest1">
+                  <div>
+                      <paper-button tabindex="0" class="blue" on-click="previousClick" raised>previous
+                        </paper-button>
+                  </div>
+                  <div><span>หน้าที่ </span><span>{{PageIndex}}</span><span>/</span><span>{{PageAll}}</span></div>
+               
+                  <div>    
+                        <paper-button tabindex="0" class="blue" on-click="nextClick" raised>next
+                        </paper-button>
+                   </div>
               </div>
+        
+
 
     </div>
 
@@ -75,7 +92,8 @@
 			
 			-->
 <!-- queryqueryqueryqueryqueryqueryqueryqueryqueryqueryqueryqueryqueryqueryqueryqueryqueryqueryqueryqueryqueryqueryqueryqueryqueryqueryqueryquery -->   
-        <persondata-element id = "getdata" url="http://localhost:3000/api/People" textsearch="" limit="10"
+        <persondata-element id = "getdata" url="http://localhost:3000/api/People" 
+                            textsearch="" limit="10"
                             typesearch="" on-datafromquery="_receivedata">       
         </persondata-element>
 <!-- queryqueryqueryqueryqueryqueryqueryqueryqueryqueryqueryqueryqueryqueryqueryqueryqueryqueryqueryqueryqueryqueryqueryqueryqueryqueryqueryquery --> 
@@ -90,17 +108,46 @@
             result: {
                 type: Object,
                 //observer: '_queryValueChanged'
+            },
+            textchange: {
+                type: String,
+                observer: 'writersearch'
+            },
+            PageIndex: {
+                type: String
+            }
+            ,
+            PageAll: {
+                type: String
             }
         },
 
-        searchClick: function (e) {
-
-            console.clear();
-            
+        writersearch: function (e) {
+           
+            //console.clear();
+            //console.log(e);
             this.$.getdata.textsearch = this.$.Searchip.value;
             this.$.getdata.typesearch = this.$.rdg.selected;
             //this.$.getdata.limit = '10';
             this.$.getdata.page_index=1;
+            this.$.getdata.query_text.skip=0;
+            
+            this.$.getdata._queryValueChanged();
+
+
+        },
+
+        radiosearch: function (e) {
+           
+       
+            
+            //console.log(e.target.getAttribute('name'));
+            this.$.getdata.textsearch = this.$.Searchip.value;
+            this.$.getdata.typesearch = e.target.getAttribute('name');
+            //this.$.getdata.limit = '10';
+            this.$.getdata.page_index=1;
+         
+            
             this.$.getdata.query_text.skip=0;
             
             this.$.getdata._queryValueChanged();
@@ -117,6 +164,18 @@
             //console.log(e.detail);
             //this.countP = e.detail.CountP;
             //console.log(e.detail[1].FirstName);
+            
+            if(e.detail.CountP !=0){
+                this.PageAll = Math.ceil(e.detail.CountP / 10);
+            }
+            else
+            {
+                this.PageAll = 1;
+            }
+            
+            
+            
+            this.PageIndex = e.detail.Pageindex;
             this.fire('datafromui',e.detail);
             //console.log(this.countP);
 
@@ -127,8 +186,14 @@
 
         },
         nextClick: function () {
+            
 
             this.$.getdata.nextClick();
+
+        },
+        eventtextchange: function () {
+
+            this.$.searchClick();
 
         }
 

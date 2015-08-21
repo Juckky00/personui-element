@@ -120,7 +120,7 @@
             //
 			//console.log(this.limit)
             
-            
+            //console.log(this.typesearch);
             this.query_text.limit=this.limit;
 
             
@@ -222,6 +222,7 @@
             
             this.result = this.$.ajax.lastResponse;
             this.result["CountP"]=this.$.people_count.lastResponse.count;
+            this.result["Pageindex"]= this.page_index;
             
             //console.log(this.result)
             

@@ -25,7 +25,7 @@
     
     last-response="{{count}}"
     handleAs="json"
-    on-response="_doqryperson">
+    on-response="queryPerson">
   </iron-ajax>
 
   <iron-ajax id="ajax"
@@ -35,11 +35,9 @@
     on-response="firedata">
   </iron-ajax>
      
-          <iron-ajax id="worker" 
+    <iron-ajax id="getdata" 
         handle-as="json"
-     
-        url="{{url}}"
-        on-response="_handleRequest">
+               on-response="firedata2">
     </iron-ajax>
       
     <iron-ajax method="DELETE" id="delete" 
@@ -75,25 +73,23 @@
         query_text: {
             limit: 10,
             skip: 0,
-            fields: ['CID', 'Title', 'FirstName', 'LastName', 'id'],
+            fields: [],
             where: {}
         },
 
         properties: {
             url: {
                 type: String
+            }, HostID: {
+                type: String,
             }, textsearch: {
                 type: String,
-                //observer: '_queryValueChanged'
             }, typesearch: {
                 type: String,
-                //observer: '_queryValueChanged'
             }, limit: {
                 type: String,
-                //observer: '_queryValueChanged'
             }, skip: {
                 type: String,
-               // observer: '_queryValueChanged'
             },
             action: {
                 type: Object,
@@ -101,7 +97,7 @@
             }
         },
         ready: function () {
-			//console.log('เหรี้ย')
+
 			//console.log(this.url)
 			//console.log(this.textsearch)
 			//console.log(this.typesearch)
@@ -117,39 +113,35 @@
      
 			//console.log(this.url)
 			//console.log(this.query_text)
-            //
 			//console.log(this.limit)
-            
             //console.log(this.typesearch);
+            
             this.query_text.limit=this.limit;
-
-            
-            
-            
             
             if (this.typesearch == 'CID') {
-                
-
+                     //'CID', 'Title', 'FirstName', 'LastName', 'id'
+                    this.query_text.fields= ['CID', 'Title', 'FirstName', 'LastName', 'id'];
                     this.query_text.where = {"CID": { "like": this.textsearch }};
                     this.$.people_count.url = this.url+"/count?where=" +
                     JSON.stringify(this.query_text.where);
                     this.$.people_count.generateRequest();
-
-			     //console.log( this.$.people_count.url)
-
             }
             else if (this.typesearch == 'FirstName') {
-          
-
                 this.query_text.where = {"FirstName": { "like": this.textsearch }};
                 this.$.people_count.url = this.url+"/count?where=" +
                 JSON.stringify(this.query_text.where);
                 this.$.people_count.generateRequest();
             }
             else if (this.typesearch == 'LastName') {
-
                 this.query_text.where = {"LastName": { "like": this.textsearch }};
                 this.$.people_count.url = this.url+"/count?where=" +
+                JSON.stringify(this.query_text.where);
+                this.$.people_count.generateRequest();
+            }
+             else if (this.typesearch == 'Host') {
+                this.query_text.fields= ['HostID', 'PersonID', 'PersonType', 'StartDate', 'EndDate'];
+                this.query_text.where = {"HostID":  this.HostID,"EndDate":null };
+                this.$.people_count.url = "http://localhost:3000/api/HostPeople"+"/count?where=" +
                 JSON.stringify(this.query_text.where);
                 this.$.people_count.generateRequest();
             }
@@ -196,12 +188,10 @@
 
                     }
                 }
-
-                
             }
-
         },
         queryPerson: function () {
+            //http://localhost:3000/api/HostPeople
             if (this.typesearch == 'CID') {
                 this.$.ajax.url = this.url+"?filter=" + JSON.stringify(this.query_text);
             }
@@ -214,7 +204,9 @@
             else if (this.typesearch == 'FLName') {
                 this.$.ajax.url = this.url+"?filter=" + JSON.stringify(this.query_text);
             }
-
+            else if (this.typesearch == 'Host') {
+                this.$.ajax.url = "http://localhost:3000/api/HostPeople?filter=" + JSON.stringify(this.query_text);
+            }
 
             this.$.ajax.generateRequest();
         },
@@ -223,39 +215,60 @@
                 this.action.target
             }
         },
-        _doqryperson: function () {
-			
-              
-              this.queryPerson();
-
-                //console.log(this.$.people_count.lastResponse)
-
+        firedata2: function () {
+              //console.log(this.$.getdata.lastResponse);
+              this.result = this.$.getdata.lastResponse;
+              this.result["CountP"]=this.$.people_count.lastResponse.count;
+              this.result["Pageindex"]= this.page_index;
+              this.fire('datafromquery',   this.result);
         },
         firedata: function () {
             
-            this.result = this.$.ajax.lastResponse;
-            this.result["CountP"]=this.$.people_count.lastResponse.count;
-            this.result["Pageindex"]= this.page_index;
-            
-            //console.log(this.result)
-            
+            if (this.typesearch != 'Host') {
+                this.result = this.$.ajax.lastResponse;
+                this.result["CountP"]=this.$.people_count.lastResponse.count;
+                this.result["Pageindex"]= this.page_index;
+               // console.log(this.result.length);
+               // console.log(this.result);
 
-            this.fire('datafromquery',   this.result);
-		
+                this.fire('datafromquery',   this.result);
+            }
+            else
+            {
+                //{"where":{"CID":{"inq":["0000000000123","0000000000252"]}}}
+                this.result = this.$.ajax.lastResponse;
+                
+                var arrayPID = [];
+               
+               // console.log(this.result);
+                for(var i =0; i < this.result.length  ;i++ )
+                {
+                    arrayPID.push(this.result[i].PersonID);
+                    //console.log(i+1);
+                    
+                }
+                //console.log(arrayPID);
+                this.query_text.fields= ['CID', 'Title', 'FirstName', 'LastName', 'id'];
+                this.query_text.where = {"id": { "inq": arrayPID }};
+                this.$.getdata.url = "http://localhost:3000/api/People?filter=" + JSON.stringify(this.query_text);
+                this.$.getdata.generateRequest();
+                
+            }
         },
         previousClick: function () {
             
-                if (this.page_index > 1) {
+                if (this.page_index > 1) 
+                {
                     this.query_text.skip -= 10;;
                     this.page_index--;
                     this.queryPerson();
                 }
-           
         },
         nextClick: function () {
             
                 
-                if (this.$.result.value - 10 > this.query_text.skip) {
+                if (this.$.result.value - 10 > this.query_text.skip) 
+                {
                     // do query next
                     this.query_text.skip += 10;
                     this.page_index++;

@@ -94,7 +94,7 @@
 			-->
 <!-- queryqueryqueryqueryqueryqueryqueryqueryqueryqueryqueryqueryqueryqueryqueryqueryqueryqueryqueryqueryqueryqueryqueryqueryqueryqueryqueryquery -->   
         <persondata-element id = "getdata" url="http://localhost:3000/api/People" 
-                            textsearch="" limit="10" HostID="55d4430f8a8d844c1f98f64c"
+                            textsearch="" limit="10" HostID="{{hostid}}"
                             typesearch="" on-datafromquery="_receivedata">       
         </persondata-element>
 <!-- queryqueryqueryqueryqueryqueryqueryqueryqueryqueryqueryqueryqueryqueryqueryqueryqueryqueryqueryqueryqueryqueryqueryqueryqueryqueryqueryquery --> 
@@ -119,6 +119,9 @@
             }
             ,
             PageAll: {
+                type: String
+            },
+            hostid: {
                 type: String
             }
         },
@@ -178,7 +181,7 @@
             
             this.PageIndex = e.detail.Pageindex;
             this.fire('datafromui',e.detail);
-            console.log(e.detail);
+           // console.log(e.detail);
 
         },
         previousClick: function () {

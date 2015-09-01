@@ -122,7 +122,9 @@
                 type: String
             },
             hostid: {
-                type: String
+                type: String,
+				observer: '_handlechangeHostID'
+				
             }
         },
 
@@ -141,7 +143,7 @@
 
         },
 
-        radiosearch: function () {
+        radiosearch: function (e) {
 
             this.$.getdata.textsearch = this.$.Searchip.value;
             this.$.getdata.typesearch = e.target.getAttribute('name');
@@ -154,8 +156,14 @@
         },
 
         ready : function () {
-       
+            //console.log(this.hostid);
             this.writersearch();
+
+        },
+
+        _handlechangeHostID : function () {
+           //console.log(this.hostid);
+		   this.$.getdata.HostID=this.hostid;
 
         }, _receivedata: function (e) {
             //รับข้มมูลมาเป็น Object มี 

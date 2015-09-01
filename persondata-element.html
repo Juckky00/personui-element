@@ -81,7 +81,9 @@
             url: {
                 type: String
             }, HostID: {
+			    
                 type: String,
+				value:""
             }, textsearch: {
                 type: String,
             }, typesearch: {
@@ -97,7 +99,7 @@
             }
         },
         ready: function () {
-
+		    //console.log(this.HostID);
 			//console.log(this.url)
 			//console.log(this.textsearch)
 			//console.log(this.typesearch)
@@ -139,10 +141,13 @@
                 this.$.people_count.generateRequest();
             }
              else if (this.typesearch == 'Host') {
+			 //console.log(this.HostID);
                 this.query_text.fields= ['HostID', 'PersonID', 'PersonType', 'StartDate', 'EndDate'];
+				
                 this.query_text.where = {"HostID":  this.HostID,"EndDate":null };
                 this.$.people_count.url = "http://localhost:3000/api/HostPeople"+"/count?where=" +
                 JSON.stringify(this.query_text.where);
+				//console.log(this.$.people_count.url);
                 this.$.people_count.generateRequest();
             }
             else if (this.typesearch == 'FLName') {
